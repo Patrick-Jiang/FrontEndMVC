@@ -2,10 +2,10 @@ export class Model {
     constructor() {
         // The state of the model, an array of to projects, prepopulated with some data
         this.todos = JSON.parse(localStorage.getItem('todos')) || []
-        this.todos = [
+        if(this.todos.length === 0 ){this.todos.push(
             {id: 1, text: 'Run a marathon', complete: false},
             {id: 2, text: 'Plant a garden', complete: false},
-        ]
+        )}
         console.log(this.todos)
     }
     _commit(todos){
