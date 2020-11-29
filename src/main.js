@@ -30,13 +30,13 @@ class Model {
             todo.id === id ? {id: todo.id, text: updatedText, complete: todo.complete} : todo
         )
         this.onTodoListChanged(this.todos)
-        this._commit(todos)
+        this._commit(this.todos)
     }
 
     deleteTodo(id) {
         this.todos = this.todos.filter((todo) => todo.id !== id)
         this.onTodoListChanged(this.todos)
-        this._commit(todos)
+        this._commit(this.todos)
     }
 
     toggleTodo(id) {
@@ -46,7 +46,7 @@ class Model {
             complete: !todo.complete
         } : todo)
         this.onTodoListChanged(this.todos)
-        this._commit(todos)
+        this._commit(this.todos)
     }
 
     bindTodoListChanged(callback){
@@ -79,10 +79,17 @@ class View {
 
         this.app.append(this.title, this.form, this.todoList)
 
-
-
+        this._temporaryTodoText = ''
+        this._initLocalListeners()
+        console.log(this._temporaryTodoText)
     }
-
+    _initLocalListeners(){
+        this.todoList.addEventListener('input',e=>{
+            if(e.target.className ==='editable'){
+                this._temporaryTodoText = e.target.innerText
+            }
+        })
+    }
     createElement(tag, className) {
         const element = document.createElement(tag)
         if (className) {
@@ -170,6 +177,16 @@ class View {
             }
         })
     }
+
+    bindEditTodo(handler){
+        this.todoList.addEventListener('focusout',e=>{
+            if(this._temporaryTodoText){
+                const id = parseInt(e.target.parentElement.id)
+                handler(id,this._temporaryTodoText)
+                this._temporaryTodoText = ''
+            }
+        })
+    }
 }
 
 class Controller {
@@ -180,7 +197,7 @@ class Controller {
         this.view.bindAddTodo(this.handleAddTodo)
         this.view.bindDeleteTodo(this.handleDeleteTodo)
         this.view.bindToggleTodo(this.handleToggleTodo)
-
+        this.view.bindEditTodo(this.handleEditTodo)
         this.onTodoListChanged(this.model.todos)
         this.model.bindTodoListChanged(this.onTodoListChanged)
     }
